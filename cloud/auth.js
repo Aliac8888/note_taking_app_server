@@ -31,8 +31,7 @@ Parse.Cloud.define("userSignup", async (request) => {
 });
 
 Parse.Cloud.define("userLogin", async (request) => {
-  const username = request.params.username;
-  const password = request.params.password;
+  const { username, password } = request.params;
 
   try {
     const user = await Parse.User.logIn(username, password);
@@ -41,8 +40,9 @@ Parse.Cloud.define("userLogin", async (request) => {
       sessionToken: user.getSessionToken(),
     };
   } catch (error) {
-    throw new Error(
-      `Error code : (${error.code}) while Loggin in user: ${error.message}`
+    throw new Parse.Error(
+      Parse.Error.INTERNAL_SERVER_ERROR,
+      `Error while Loggin in user: ${error.message}`
     );
   }
 });
