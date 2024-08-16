@@ -53,8 +53,18 @@ Parse.Cloud.define("userLogin", async (request) => {
 Parse.Cloud.define(
   "userLogout",
   async (request) => {
+    const sessionToken = request.user.getSessionToken();
+
     try {
-      await Parse.User.logOut(); // Invalidates the current user's session
+      // Manually destroy the session
+      const sessionQuery = new Parse.Query(Parse.Session);
+      sessionQuery.equalTo("sessionToken", sessionToken);
+      const session = await sessionQuery.first({ useMasterKey: true });
+
+      if (session) {
+        await session.destroy({ useMasterKey: true });
+      }
+
       return { message: "User logged out successfully" };
     } catch (error) {
       throw new Parse.Error(
@@ -73,7 +83,10 @@ Parse.Cloud.define("deleteUser", async (request) => {
 
   // Check if the master key was used in the request
   if (!request.master) {
-    throw new Error("Unauthorized: MasterKey is required.");
+    throw new Parse.Error(
+      Parse.Error.OPERATION_FORBIDDEN,
+      `Unauthorized: MasterKey is required.`
+    );
   }
 
   const query = new Parse.Query(Parse.User);
@@ -83,15 +96,19 @@ Parse.Cloud.define("deleteUser", async (request) => {
     const user = await query.first({ useMasterKey: true });
 
     if (!user) {
-      throw new Error("User not found.");
+      throw new Parse.Error(
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        `User not found.`
+      );
     }
 
     await user.destroy({ useMasterKey: true });
 
     return { message: `User ${username} deleted successfully.` };
   } catch (error) {
-    throw new Error(
-      `Error code : (${error.code}) while deleting user: ${error.message}`
+    throw new Parse.Error(
+      Parse.Error.INTERNAL_SERVER_ERROR,
+      `Error while deleting user: ${error.message}`
     );
   }
 });
