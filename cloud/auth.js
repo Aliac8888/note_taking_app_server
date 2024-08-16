@@ -1,5 +1,5 @@
 const { createUser } = require("./helpers/auth-helper");
-const { assignAdminRole } = require("./helpers/role-helper");
+const { assignAdminRole, assignUserRole } = require("./helpers/role-helper");
 
 Parse.Cloud.define("userSignup", async (request) => {
   const { username, password, email, isAdmin } = request.params;
@@ -16,7 +16,10 @@ Parse.Cloud.define("userSignup", async (request) => {
     // Sign up the user
     const user = await createUser(username, password, email);
 
-    // If the user is an admin, assign them to the Admin role
+    // Assign the user to the default User role
+    await assignUserRole(user);
+
+    // If the user is an admin, also assign them to the Admin role
     if (isAdmin) {
       await assignAdminRole(user);
     }
@@ -46,6 +49,24 @@ Parse.Cloud.define("userLogin", async (request) => {
     );
   }
 });
+
+Parse.Cloud.define(
+  "userLogout",
+  async (request) => {
+    try {
+      await Parse.User.logOut(); // Invalidates the current user's session
+      return { message: "User logged out successfully" };
+    } catch (error) {
+      throw new Parse.Error(
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        `Error while logging out user: ${error.message}`
+      );
+    }
+  },
+  {
+    requireUser: true, // Ensures that only authenticated users can access this function
+  }
+);
 
 Parse.Cloud.define("deleteUser", async (request) => {
   const username = request.params.username;
