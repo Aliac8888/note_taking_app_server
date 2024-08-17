@@ -102,6 +102,16 @@ Parse.Cloud.define("deleteUser", async (request) => {
       );
     }
 
+    // Manually destroy the sessions associated with the user
+    const sessionQuery = new Parse.Query(Parse.Session);
+    sessionQuery.equalTo("user", user);
+    const sessions = await sessionQuery.find({ useMasterKey: true });
+
+    if (sessions.length > 0) {
+      await Parse.Object.destroyAll(sessions, { useMasterKey: true });
+    }
+
+    // Destroy the user
     await user.destroy({ useMasterKey: true });
 
     return { message: `User ${username} deleted successfully.` };
