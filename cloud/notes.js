@@ -46,6 +46,61 @@ Parse.Cloud.define(
 );
 
 Parse.Cloud.define(
+  "updateNote",
+  async (request) => {
+    const { title, content, noteId } = request.params;
+
+    // Ensure the Note class exists or create it with the specified fields
+    const classCheckResult = await ensureClassExists("Note", {
+      title: "String",
+      content: "String",
+      author: "Pointer<_User>", // Author field is required
+    });
+
+    if (classCheckResult) {
+      // Query to find the note by ID
+      const noteQuery = new Parse.Query("Note");
+
+      try {
+        const note = await noteQuery.get(noteId, {
+          sessionToken: request.user.getSessionToken(),
+        });
+
+        // Check if the current user has write access to the note
+        const acl = note.getACL();
+        if (!acl || !acl.getWriteAccess(request.user)) {
+          throw new Parse.Error(
+            Parse.Error.OPERATION_FORBIDDEN,
+            "You do not have permission to update this note."
+          );
+        }
+
+        // Update the note fields
+        note.set("title", title);
+        note.set("content", content);
+
+        await note.save(null, { sessionToken: request.user.getSessionToken() });
+        return { message: "Note Updated successfully", noteId: note.id };
+      } catch (error) {
+        throw new Parse.Error(
+          Parse.Error.INTERNAL_SERVER_ERROR,
+          `Error while updating note: ${error.message}`
+        );
+      }
+    } else {
+      throw new Parse.Error(
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        `Error while retrieving notes: Couldn't Fetch Notes`
+      );
+    }
+  },
+  {
+    fields: ["title", "content", "noteId"],
+    requireUser: true, // Ensures that only authenticated users can access this function
+  }
+);
+
+Parse.Cloud.define(
   "getMyNotes",
   async (request) => {
     // Ensure the Note class exists or create it with the specified fields
@@ -92,22 +147,29 @@ Parse.Cloud.define(
       author: "Pointer<_User>", // Author field is required
     });
 
-    // Query to find the note by ID
-    const noteQuery = new Parse.Query("Note");
+    if (classCheckResult) {
+      // Query to find the note by ID
+      const noteQuery = new Parse.Query("Note");
 
-    try {
-      const note = await noteQuery.get(noteId, {
-        sessionToken: request.user.getSessionToken(),
-      });
+      try {
+        const note = await noteQuery.get(noteId, {
+          sessionToken: request.user.getSessionToken(),
+        });
 
-      // If the note exists and the user has access (due to ACL), delete the note
-      await note.destroy({ sessionToken: request.user.getSessionToken() });
+        // If the note exists and the user has access (due to ACL), delete the note
+        await note.destroy({ sessionToken: request.user.getSessionToken() });
 
-      return { message: "Note deleted successfully" };
-    } catch (error) {
+        return { message: "Note deleted successfully" };
+      } catch (error) {
+        throw new Parse.Error(
+          Parse.Error.INTERNAL_SERVER_ERROR,
+          `Error while deleting note: ${error.message}`
+        );
+      }
+    } else {
       throw new Parse.Error(
         Parse.Error.INTERNAL_SERVER_ERROR,
-        `Error while deleting note: ${error.message}`
+        `Error while retrieving notes: Couldn't Fetch Notes`
       );
     }
   },
@@ -131,56 +193,63 @@ Parse.Cloud.define(
       author: "Pointer<_User>", // Author field is required
     });
 
-    const noteQuery = new Parse.Query("Note");
-    let note;
-    try {
-      note = await noteQuery.get(noteId, { useMasterKey: true });
-    } catch (error) {
-      throw new Parse.Error(
-        Parse.Error.OBJECT_NOT_FOUND,
-        `Note with ID ${noteId} not found or access denied.`
-      );
-    }
-
-    // Ensure the requesting user is the note owner
-    if (note.getACL().getWriteAccess(request.user)) {
-      const userQuery = new Parse.Query(Parse.User);
-
-      let targetUser;
+    if (classCheckResult) {
+      const noteQuery = new Parse.Query("Note");
+      let note;
       try {
-        targetUser = await userQuery.get(userId, { useMasterKey: true });
+        note = await noteQuery.get(noteId, { useMasterKey: true });
       } catch (error) {
         throw new Parse.Error(
           Parse.Error.OBJECT_NOT_FOUND,
-          `User with ID ${userId} not found or access denied.`
+          `Note with ID ${noteId} not found or access denied.`
         );
       }
 
-      const noteACL = note.getACL();
+      // Ensure the requesting user is the note owner
+      if (note.getACL().getWriteAccess(request.user)) {
+        const userQuery = new Parse.Query(Parse.User);
 
-      if (permission === "read") {
-        noteACL.setReadAccess(targetUser, true);
-      } else if (permission === "write") {
-        noteACL.setWriteAccess(targetUser, true);
-      } else if (permission === "delete") {
-        noteACL.setDeleteAccess(targetUser, true);
-      }
+        let targetUser;
+        try {
+          targetUser = await userQuery.get(userId, { useMasterKey: true });
+        } catch (error) {
+          throw new Parse.Error(
+            Parse.Error.OBJECT_NOT_FOUND,
+            `User with ID ${userId} not found or access denied.`
+          );
+        }
 
-      note.setACL(noteACL);
+        const noteACL = note.getACL();
 
-      try {
-        await note.save(null, { useMasterKey: true });
-        return { message: "User permissions updated successfully" };
-      } catch (error) {
+        if (permission === "read") {
+          noteACL.setReadAccess(targetUser, true);
+        } else if (permission === "write") {
+          noteACL.setWriteAccess(targetUser, true);
+        } else if (permission === "delete") {
+          noteACL.setDeleteAccess(targetUser, true);
+        }
+
+        note.setACL(noteACL);
+
+        try {
+          await note.save(null, { useMasterKey: true });
+          return { message: "User permissions updated successfully" };
+        } catch (error) {
+          throw new Parse.Error(
+            Parse.Error.INTERNAL_SERVER_ERROR,
+            `Error while updating note permissions: ${error.message}`
+          );
+        }
+      } else {
         throw new Parse.Error(
-          Parse.Error.INTERNAL_SERVER_ERROR,
-          `Error while updating note permissions: ${error.message}`
+          Parse.Error.OPERATION_FORBIDDEN,
+          `You do not have permission to share this note`
         );
       }
     } else {
       throw new Parse.Error(
-        Parse.Error.OPERATION_FORBIDDEN,
-        `You do not have permission to share this note`
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        `Error while retrieving notes: Couldn't Fetch Notes`
       );
     }
   },
