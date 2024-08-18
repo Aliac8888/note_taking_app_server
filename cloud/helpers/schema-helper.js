@@ -4,8 +4,11 @@ async function ensureClassExists(className, fields = {}) {
     const existingSchema = new Parse.Schema(className);
     await existingSchema.get(); // This will throw an error if the class doesn't exist
     return true;
-  } catch (err) {    
-    if (err.message !== "Schema not found.") {
+  } catch (err) {
+    if (
+      err.message !== "Schema not found." &&
+      err.message !== "Class Note does not exist."
+    ) {
       throw new Error(
         `Error while ensuring class ${className}: ${err.message}`
       );
