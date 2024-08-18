@@ -1,7 +1,9 @@
+require("dotenv").config(); // Load environment variables from .env file
+
 const express = require("express");
 const { ParseServer } = require("parse-server");
-const parseConfig = require("./config/parse-config");
 const path = require("path");
+const parseConfig = require("./config/parse-config");
 
 const app = express();
 
