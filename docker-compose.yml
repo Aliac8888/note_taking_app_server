@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+
+  parse-server:
+    image: note-taking-app-server
+    container_name: note-taking-app-server
+    ports:
+      - "1337:1337"
+    environment:
+      - PARSE_SERVER_DATABASE_URI=mongodb://mongodb:27017/dev
+      - PARSE_SERVER_APPLICATION_ID=myAppId
+      - PARSE_SERVER_MASTER_KEY=myMasterKey
+      - PARSE_SERVER_CLOUD=/parse-server/cloud/main.js
+      - PARSE_SERVER_URL=http://localhost:1337/parse
+    depends_on:
+      - mongodb
