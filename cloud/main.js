@@ -1,4 +1,7 @@
-require("./functions.js");
-require("./auth.js");
-require("./notes.js");
-require("./save-triggers.js");
+// Load the route files
+const authRoutes = require("../app/routes/authRoutes");
+const noteRoutes = require("../app/routes/noteRoutes");
+
+// Register the routes
+authRoutes(Parse);
+noteRoutes(Parse);

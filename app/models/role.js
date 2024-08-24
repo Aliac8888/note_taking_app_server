@@ -1,4 +1,7 @@
-// Helper function to create the Admin role
+/**
+ * Creates the Admin role if it doesn't exist
+ * @returns {Promise<Parse.Role>} The created or existing Admin role
+ */
 async function createAdminRole() {
   const roleACL = new Parse.ACL();
   roleACL.setPublicReadAccess(true); // Allows the role to be seen by everyone
@@ -8,10 +11,15 @@ async function createAdminRole() {
   return await adminRole.save(null, { useMasterKey: true });
 }
 
-// Helper function to assign the user to the Admin role
+/**
+ * Assigns a user to the Admin role
+ * @param {Parse.User} user - The user to assign to the Admin role
+ * @returns {Promise<void>}
+ */
 async function assignAdminRole(user) {
   const roleQuery = new Parse.Query(Parse.Role);
   roleQuery.equalTo("name", "Admin");
+
   let adminRole = await roleQuery.first({ useMasterKey: true });
 
   // If the Admin role doesn't exist, create it
@@ -24,20 +32,28 @@ async function assignAdminRole(user) {
   await adminRole.save(null, { useMasterKey: true });
 }
 
-// Helper function to create the User role
+/**
+ * Creates the User role if it doesn't exist
+ * @returns {Promise<Parse.Role>} The created or existing User role
+ */
 async function createUserRole() {
   const roleACL = new Parse.ACL();
   roleACL.setPublicReadAccess(true); // Allows the role to be seen by everyone
-  roleACL.setPublicWriteAccess(false);
+  roleACL.setPublicWriteAccess(false); // Restricts modification to specific users
 
   const userRole = new Parse.Role("User", roleACL);
   return await userRole.save(null, { useMasterKey: true });
 }
 
-// Helper function to assign the user to the User role
+/**
+ * Assigns a user to the User role
+ * @param {Parse.User} user - The user to assign to the User role
+ * @returns {Promise<void>}
+ */
 async function assignUserRole(user) {
   const roleQuery = new Parse.Query(Parse.Role);
   roleQuery.equalTo("name", "User");
+
   let userRole = await roleQuery.first({ useMasterKey: true });
 
   // If the User role doesn't exist, create it

@@ -1,20 +1,20 @@
-# Use an official Node.js runtime as the base image
-FROM node:20.16-alpine
-
-# Set the working directory inside the container
+# Build stage
+FROM node:20.16.0-alpine3.20 AS builder
 WORKDIR /app
-
-# Copy the package.json and package-lock.json files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application files
+# Production stage
+FROM node:20.16.0-alpine3.20
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-# Expose the port the app runs on
+# Environment variables for conditional execution
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
 EXPOSE 1337
 
-# Start the Parse Server
-CMD ["npm", "start"]
+# Conditionally use nodemon in development or node in production
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = 'development' ]; then npm run dev; else npm start; fi"]
