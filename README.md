@@ -26,25 +26,29 @@ This is a simple note-taking application built using Parse Server, MongoDB, and 
 ## Setup
 
 1. **Clone the repository:**
-    ```bash
-    git clone https://github.com/Aliac8888/note_taking_app_server.git
-    cd note-taking-app
-    ```
+        ```bash
+        git clone https://github.com/Aliac8888/note_taking_app_server.git
+        cd <project-directory>
+        ```
 
 2. **Set up environment variables:**
+   
     - Create a `.env` file in the root directory (if already not have it) and add the following:
-    ```bash
-    DATABASE_URI=mongodb://mongodb:27017/dev
-    APP_ID=myAppId
-    MASTER_KEY=myMasterKey
-    SERVER_URL=http://localhost:1337/parse
-    ```
+      
+        ```bash
+        PARSE_SERVER_DATABASE_URI=mongodb://127.0.0.1:27017/dev
+        PARSE_SERVER_APPLICATION_ID=myAppId
+        PARSE_SERVER_MASTER_KEY=myMasterKey
+        PARSE_SERVER_URL=http://localhost:1337/parse
+        ```
 
-3. **Install dependencies:**
+4. **Install dependencies:**
+   
     - If you're running locally, install the dependencies using npm:
-    ```bash
-    npm install
-    ```
+      
+        ```bash
+        npm install
+        ```
 
 ## Usage
 
@@ -53,15 +57,22 @@ This is a simple note-taking application built using Parse Server, MongoDB, and 
 1. **Start MongoDB**
 
 2. **Start the application:**
-    ```bash
-    npm start
-    ```
+
+   - **Without Nodemon:**
+        ```bash
+        npm start
+        ```
+        
+   - **With Nodemon:**
+        ```bash
+        npm run dev
+        ```
 
 ### Running Using Docker
 
-- **Build the Docker image:**
+- **Pull mongo image: (skip if you already have mongo image)**
     ```bash
-    docker build -t note-taking-app-server .
+    docker pull mongo
     ```
 
 - **Run the Docker container using docker-compose:**
@@ -87,6 +98,7 @@ This is a simple note-taking application built using Parse Server, MongoDB, and 
 - **Login:** `POST /parse/functions/userLogin`
 - **Logout:** `POST /parse/functions/userLogout`
 - **Delete User:** `POST /parse/functions/deleteUser`
+- **Get Notes Stats:** `POST /parse/functions/getNotesStats`
 - **Create Note:** `POST /parse/functions/createNote`
 - **Get Notes:** `POST /parse/functions/getMyNotes`
 - **Update Note:** `POST /parse/functions/updateNote`
