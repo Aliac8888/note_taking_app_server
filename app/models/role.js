@@ -1,6 +1,7 @@
 /**
- * Creates the Admin role if it doesn't exist
- * @returns {Promise<Parse.Role>} The created or existing Admin role
+ * Creates the "Admin" role with the necessary permissions if it doesn't exist.
+ * @returns {Promise<Parse.Role>} A promise that resolves to the created or existing Admin role.
+ * @throws {Parse.Error} If an error occurs during role creation.
  */
 async function createAdminRole() {
   const roleACL = new Parse.ACL();
@@ -12,9 +13,10 @@ async function createAdminRole() {
 }
 
 /**
- * Assigns a user to the Admin role
- * @param {Parse.User} user - The user to assign to the Admin role
- * @returns {Promise<void>}
+ * Assigns a user to the "Admin" role. If the role does not exist, it will be created.
+ * @param {Parse.User} user - The user to assign to the Admin role.
+ * @returns {Promise<void>} A promise that resolves when the user has been assigned to the role.
+ * @throws {Parse.Error} If an error occurs during role assignment.
  */
 async function assignAdminRole(user) {
   const roleQuery = new Parse.Query(Parse.Role);
@@ -33,8 +35,9 @@ async function assignAdminRole(user) {
 }
 
 /**
- * Creates the User role if it doesn't exist
- * @returns {Promise<Parse.Role>} The created or existing User role
+ * Creates the "User" role with the necessary permissions if it doesn't exist.
+ * @returns {Promise<Parse.Role>} A promise that resolves to the created or existing User role.
+ * @throws {Parse.Error} If an error occurs during role creation.
  */
 async function createUserRole() {
   const roleACL = new Parse.ACL();
@@ -46,9 +49,10 @@ async function createUserRole() {
 }
 
 /**
- * Assigns a user to the User role
- * @param {Parse.User} user - The user to assign to the User role
- * @returns {Promise<void>}
+ * Assigns a user to the "User" role. If the role does not exist, it will be created.
+ * @param {Parse.User} user - The user to assign to the User role.
+ * @returns {Promise<void>} A promise that resolves when the user has been assigned to the role.
+ * @throws {Parse.Error} If an error occurs during role assignment.
  */
 async function assignUserRole(user) {
   const roleQuery = new Parse.Query(Parse.Role);

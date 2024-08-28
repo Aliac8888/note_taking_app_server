@@ -1,11 +1,12 @@
 const errors = require("../constants/errorMessages");
 
 /**
- * Creates a new user
- * @param {string} username - The username of the new user
- * @param {string} password - The password of the new user
- * @param {string} email - The email of the new user
- * @returns {Promise<Parse.User>} The created user object
+ * Creates a new user in the Parse server.
+ * @param {string} username - The username for the new user.
+ * @param {string} password - The password for the new user.
+ * @param {string} email - The email address for the new user.
+ * @returns {Promise<Parse.User>} The created user object.
+ * @throws {Parse.Error} Throws an error if the username or email already exists, or if another issue occurs during user creation.
  */
 async function createUser(username, password, email) {
   const user = new Parse.User();
@@ -30,9 +31,9 @@ async function createUser(username, password, email) {
 }
 
 /**
- * Fetches a user by username
- * @param {string} username - The username of the user to fetch
- * @returns {Promise<Parse.User|null>} The fetched user object or null if not found
+ * Fetches a user by their username.
+ * @param {string} username - The username of the user to fetch.
+ * @returns {Promise<Parse.User|null>} The fetched user object, or null if the user is not found.
  */
 async function getUserByUsername(username) {
   const query = new Parse.Query(Parse.User);
@@ -41,9 +42,9 @@ async function getUserByUsername(username) {
 }
 
 /**
- * Deletes a user and associated sessions
- * @param {Parse.User} user - The user to delete
- * @returns {Promise<void>} Resolves when the user is deleted
+ * Deletes a user and their associated sessions from the Parse server.
+ * @param {Parse.User} user - The user to delete.
+ * @returns {Promise<void>} Resolves when the user and associated sessions are successfully deleted.
  */
 async function deleteUser(user) {
   const sessionQuery = new Parse.Query(Parse.Session);
