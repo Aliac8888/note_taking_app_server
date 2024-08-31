@@ -1,3 +1,4 @@
+const Parse = require("parse/node"); // Add this line
 const User = require("../models/user");
 const roleModel = require("../models/role");
 const errors = require("../constants/errorMessages");
