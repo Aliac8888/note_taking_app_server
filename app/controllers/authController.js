@@ -84,6 +84,13 @@ async function userLogout(request) {
     const sessionQuery = new Parse.Query(Parse.Session);
     sessionQuery.equalTo("sessionToken", sessionToken);
     const session = await sessionQuery.first({ useMasterKey: true });
+    
+    if (typeof session === 'undefined') {
+      throw new Parse.Error(
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        `Error logging out user: session not found`
+      );
+    }
 
     if (session) {
       await session.destroy({ useMasterKey: true });
@@ -117,25 +124,30 @@ async function deleteUser(request) {
     );
   }
 
-  try {
-    const user = await User.getUserByUsername(username);
+   try {
+     const user = await User.getUserByUsername(username);
 
-    if (!user) {
-      throw new Parse.Error(
-        Parse.Error.OBJECT_NOT_FOUND,
-        errors.USER_NOT_FOUND
-      );
-    }
+     if (!user) {
+       throw new Parse.Error(
+         Parse.Error.OBJECT_NOT_FOUND,
+         errors.USER_NOT_FOUND
+       );
+     }
 
-    await User.deleteUser(user);
+     await User.deleteUser(user);
 
-    return { message: `User ${username} deleted successfully.` };
-  } catch (error) {
-    throw new Parse.Error(
-      Parse.Error.INTERNAL_SERVER_ERROR,
-      `Error deleting user: ${error.message}`
-    );
-  }
+     return { message: `User ${username} deleted successfully.` };
+   } catch (error) {
+     // Only rethrow as INTERNAL_SERVER_ERROR if it's not a known Parse.Error
+     if (error instanceof Parse.Error) {
+       throw error;
+     } else {
+       throw new Parse.Error(
+         Parse.Error.INTERNAL_SERVER_ERROR,
+         `Error deleting user: ${error.message}`
+       );
+     }
+   }
 }
 
 module.exports = { userSignup, userLogin, userLogout, deleteUser };
