@@ -1,3 +1,4 @@
+const Parse = require("parse/node");
 const Note = require("../models/note");
 
 /**
@@ -7,7 +8,7 @@ const Note = require("../models/note");
  * @returns {Promise<Object>} Message indicating successful operation along with the stats
  * @throws {Parse.Error} If there is an error during fetching stats
  */
-async function getNotesStats(request) {
+async function getNotesStats() {
   try {
     const noteQuery = new Parse.Query(Note);
     const stats = await noteQuery.aggregate([

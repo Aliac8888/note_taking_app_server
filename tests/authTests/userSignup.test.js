@@ -1,11 +1,11 @@
-const User = require("../models/user");
-const roleModel = require("../models/role");
-const errors = require("../constants/errorMessages");
-const { userSignup } = require("../controllers/authController");
+const User = require("../../app/models/user");
+const roleModel = require("../../app/models/role");
+const errors = require("../../app/constants/errorMessages");
+const { userSignup } = require("../../app/controllers/authController");
 
 // Mock User and Role Models
-jest.mock("../models/user");
-jest.mock("../models/role");
+jest.mock("../../app/models/user");
+jest.mock("../../app/models/role");
 
 // Mock Parse methods
 jest.mock("parse/node", () => {

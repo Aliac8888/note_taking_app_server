@@ -1,3 +1,5 @@
+const Parse = require("parse/node");
+
 class Note extends Parse.Object {
   constructor() {
     super("Note");

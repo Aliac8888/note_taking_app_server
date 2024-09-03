@@ -1,5 +1,5 @@
 const Parse = require("parse/node");
-const { userLogin } = require("../controllers/authController");
+const { userLogin } = require("../../app/controllers/authController");
 
 // Mock Parse methods
 jest.mock("parse/node", () => {

@@ -1,5 +1,5 @@
 const Parse = require("parse/node");
-const { userLogout } = require("../controllers/authController");
+const { userLogout } = require("../../app/controllers/authController");
 
 describe("userLogout", () => {
   const mockRequest = {

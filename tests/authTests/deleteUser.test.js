@@ -1,10 +1,10 @@
 const Parse = require("parse/node");
-const User = require("../models/user");
-const { deleteUser } = require("../controllers/authController");
-const errors = require("../constants/errorMessages");
+const User = require("../../app/models/user");
+const { deleteUser } = require("../../app/controllers/authController");
+const errors = require("../../app/constants/errorMessages");
 
 // Mock User model methods
-jest.mock("../models/user", () => ({
+jest.mock("../../app/models/user", () => ({
   getUserByUsername: jest.fn(),
   deleteUser: jest.fn(),
 }));

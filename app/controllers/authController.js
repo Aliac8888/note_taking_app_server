@@ -1,4 +1,4 @@
-const Parse = require("parse/node"); // Add this line
+const Parse = require("parse/node");
 const User = require("../models/user");
 const roleModel = require("../models/role");
 const errors = require("../constants/errorMessages");
